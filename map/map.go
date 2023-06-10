@@ -1,11 +1,17 @@
 package xzmap
 
 import (
-	mapcommon "github.com/averyyan/xz-map/common"
+	"fmt"
+
 	mapshared "github.com/averyyan/xz-map/shared"
 )
 
-func NewStringer[K mapcommon.MapStringer, T any](opts ...Option[K, T]) *Map[K, T] {
+type MapStringer interface {
+	comparable
+	fmt.Stringer
+}
+
+func NewStringer[K MapStringer, T any](opts ...Option[K, T]) *Map[K, T] {
 	return create(strfnv32[K], opts...)
 }
 
