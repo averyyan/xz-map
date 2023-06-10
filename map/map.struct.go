@@ -9,23 +9,29 @@ type Map[K comparable, T any] struct {
 	size     int                       // 缓存Map大小
 	shards   []*mapshared.Shared[K, T] // 缓存分片
 	sharding func(key K) uint32        // 缓存分片策略
-}
-
-// 设置值
-func (m *Map[K, T]) Set(key K, value T, opts ...mapitem.Option[T]) {
-	item := mapitem.New[T](value, opts...)
-	m.getShard(key).SetItem(key, item)
-}
-
-// 获取值
-func (m *Map[K, T]) Get(key K) (T, bool) {
-	val, ok := m.getShard(key).GetItem(key)
-	return val.GetValue(), ok
+	itemOpts []mapitem.Option[T]       // 默认缓存策略
 }
 
 // 判断是否有值
 func (m *Map[K, T]) Has(key K) bool {
 	return m.getShard(key).HasItem(key)
+}
+
+// 获取值
+func (m *Map[K, T]) Get(key K) (item mapitem.Item[T], ok bool) {
+	if m.getShard(key).HasItem(key) {
+		item, ok = m.getShard(key).GetItem(key)
+		return item, ok
+	}
+	return item, false
+}
+
+// 设置值
+func (m *Map[K, T]) Set(key K, value T, opts ...mapitem.Option[T]) {
+	dOpts := m.itemOpts
+	dOpts = append(dOpts, opts...)
+	item := mapitem.New[T](value, dOpts...)
+	m.getShard(key).SetItem(key, item)
 }
 
 // 删除值
@@ -36,13 +42,21 @@ func (m *Map[K, T]) Remove(key K) {
 	}
 }
 
-// 获取所有的值
-func (m *Map[K, T]) Values() []T {
-	var values []T
+// 获取所有Item
+func (m *Map[K, T]) Items() map[K]mapitem.Item[T] {
+	itemMap := make(map[K]mapitem.Item[T])
 	for t := range m.IterBuffered() {
-		values = append(values, t.Val.GetValue())
+		itemMap[t.Key] = t.Val
 	}
-	return values
+	return itemMap
+}
+
+func (m *Map[K, T]) Size() int {
+	size := 0
+	for _, shard := range m.shards {
+		size += shard.CountItems()
+	}
+	return size
 }
 
 // 非同步 缓存Map清理

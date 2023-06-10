@@ -10,7 +10,7 @@ import (
 func TestNew(t *testing.T) {
 	v, ok := myMap.Get("1")
 	then.AssertThat(t, ok, is.True())
-	then.AssertThat(t, v, is.EqualTo(1))
+	then.AssertThat(t, v.GetValue(), is.EqualTo(1))
 }
 
 func TestHas(t *testing.T) {

@@ -1,11 +1,11 @@
-package mapitem
+package xzmapitem
 
 import "github.com/golang-module/carbon/v2"
 
 type Option[T any] func(item *item[T])
 
 // 设置删除函数
-func WithDeleteHandler[T any](fn func(v T) error) Option[T] {
+func WithDeleteHandler[T any](fn func(v T)) Option[T] {
 	return func(item *item[T]) {
 		item.deleteHandler = fn
 	}

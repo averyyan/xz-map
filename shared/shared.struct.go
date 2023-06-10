@@ -1,4 +1,4 @@
-package mapshared
+package xzmapshared
 
 import (
 	"sync"

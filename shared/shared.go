@@ -1,4 +1,4 @@
-package mapshared
+package xzmapshared
 
 import mapitem "github.com/averyyan/xz-map/item"
 

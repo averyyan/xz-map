@@ -1,4 +1,4 @@
-package mapitem
+package xzmapitem
 
 import "time"
 
@@ -6,7 +6,7 @@ type item[T any] struct {
 	value         T
 	expiration    int64
 	createTime    time.Time
-	deleteHandler func(v T) error
+	deleteHandler func(v T)
 }
 
 func (item *item[T]) GetValue() T {
@@ -22,9 +22,8 @@ func (item *item[T]) VerifyTimeDuration(d time.Duration) bool {
 	return time.Now().After(t)
 }
 
-func (item *item[T]) DeleteHandler() error {
+func (item *item[T]) DeleteHandler() {
 	if item.deleteHandler != nil {
-		return item.deleteHandler(item.value)
+		item.deleteHandler(item.value)
 	}
-	return nil
 }
