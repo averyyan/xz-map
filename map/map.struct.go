@@ -1,7 +1,6 @@
 package xzmap
 
 import (
-	mapcommon "github.com/averyyan/xz-map/common"
 	mapitem "github.com/averyyan/xz-map/item"
 	mapshared "github.com/averyyan/xz-map/shared"
 )
@@ -59,13 +58,13 @@ func (m *Map[K, T]) getShard(key K) *mapshared.Shared[K, T] {
 }
 
 // 多线程读取所有数据
-func (m *Map[K, T]) IterBuffered() <-chan tuple[K, mapcommon.MapItem[T]] {
+func (m *Map[K, T]) IterBuffered() <-chan tuple[K, mapitem.Item[T]] {
 	chans := snapshot(m)
 	total := 0
 	for _, c := range chans {
 		total += cap(c)
 	}
-	ch := make(chan tuple[K, mapcommon.MapItem[T]], total)
+	ch := make(chan tuple[K, mapitem.Item[T]], total)
 	go fanIn(chans, ch)
 	return ch
 }

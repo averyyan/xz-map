@@ -3,24 +3,24 @@ package mapshared
 import (
 	"sync"
 
-	mapcommon "github.com/averyyan/xz-map/common"
+	mapitem "github.com/averyyan/xz-map/item"
 )
 
 // Map 分片
 type Shared[K comparable, T any] struct {
 	sync.RWMutex
-	items map[K]mapcommon.MapItem[T]
+	items map[K]mapitem.Item[T]
 }
 
 // 分片设置值
-func (shared *Shared[K, T]) SetItem(key K, value mapcommon.MapItem[T]) {
+func (shared *Shared[K, T]) SetItem(key K, value mapitem.Item[T]) {
 	shared.Lock()
 	defer shared.Unlock()
 	shared.items[key] = value
 }
 
 // 分片获取值
-func (shared *Shared[K, T]) GetItem(key K) (mapcommon.MapItem[T], bool) {
+func (shared *Shared[K, T]) GetItem(key K) (mapitem.Item[T], bool) {
 	shared.RLock()
 	defer shared.RUnlock()
 	value, ok := shared.items[key]
@@ -28,7 +28,7 @@ func (shared *Shared[K, T]) GetItem(key K) (mapcommon.MapItem[T], bool) {
 }
 
 // 获取分片值
-func (shared *Shared[K, T]) GetItems() map[K]mapcommon.MapItem[T] {
+func (shared *Shared[K, T]) GetItems() map[K]mapitem.Item[T] {
 	return shared.items
 }
 
@@ -41,7 +41,7 @@ func (shared *Shared[K, T]) HasItem(key K) bool {
 }
 
 // 分片移除值
-func (shared *Shared[K, T]) RemoveItem(key K) (K, mapcommon.MapItem[T]) {
+func (shared *Shared[K, T]) RemoveItem(key K) (K, mapitem.Item[T]) {
 	shared.Lock()
 	defer shared.Unlock()
 	value := shared.items[key]

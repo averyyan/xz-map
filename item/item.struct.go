@@ -2,29 +2,29 @@ package mapitem
 
 import "time"
 
-type Item[T any] struct {
-	Value         T
-	Expiration    int64
+type item[T any] struct {
+	value         T
+	expiration    int64
 	createTime    time.Time
 	deleteHandler func(v T) error
 }
 
-func (item *Item[T]) GetValue() T {
-	return item.Value
+func (item *item[T]) GetValue() T {
+	return item.value
 }
 
-func (item *Item[T]) VerifyExpiration(unixNano int64) bool {
-	return item.Expiration > 0 && unixNano > item.Expiration
+func (item *item[T]) VerifyExpiration(unixNano int64) bool {
+	return item.expiration > 0 && unixNano > item.expiration
 }
 
-func (item *Item[T]) VerifyTimeDuration(d time.Duration) bool {
+func (item *item[T]) VerifyTimeDuration(d time.Duration) bool {
 	t := item.createTime.Add(d)
 	return time.Now().After(t)
 }
 
-func (item *Item[T]) DeleteHandler() error {
+func (item *item[T]) DeleteHandler() error {
 	if item.deleteHandler != nil {
-		return item.deleteHandler(item.Value)
+		return item.deleteHandler(item.value)
 	}
 	return nil
 }

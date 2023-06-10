@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	mapcommon "github.com/averyyan/xz-map/common"
+	mapitem "github.com/averyyan/xz-map/item"
 	mapshared "github.com/averyyan/xz-map/shared"
 )
 
@@ -24,20 +24,20 @@ func fnv32(key string) uint32 {
 }
 
 // 获取数据Map的快照
-func snapshot[K comparable, T any](m *Map[K, T]) (chans []chan tuple[K, mapcommon.MapItem[T]]) {
+func snapshot[K comparable, T any](m *Map[K, T]) (chans []chan tuple[K, mapitem.Item[T]]) {
 	if m.size == 0 {
 		return chans
 	}
-	chans = make([]chan tuple[K, mapcommon.MapItem[T]], m.size)
+	chans = make([]chan tuple[K, mapitem.Item[T]], m.size)
 	wg := sync.WaitGroup{}
 	wg.Add(m.size)
 	for index, shard := range m.shards {
 		go func(index int, shard *mapshared.Shared[K, T]) {
 			shard.RLock()
-			chans[index] = make(chan tuple[K, mapcommon.MapItem[T]], shard.CountItems())
+			chans[index] = make(chan tuple[K, mapitem.Item[T]], shard.CountItems())
 			wg.Done()
 			for key, val := range shard.GetItems() {
-				chans[index] <- tuple[K, mapcommon.MapItem[T]]{key, val}
+				chans[index] <- tuple[K, mapitem.Item[T]]{key, val}
 			}
 			shard.RUnlock()
 			close(chans[index])
